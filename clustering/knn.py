@@ -7,6 +7,10 @@ from sklearn.neighbors import NearestNeighbors
 from clustering.relabel import relabel
 
 def do_knn_clustering(knn_array):
+    """
+    Uses knn to determine clusters.
+    """
+
     num_points = knn_array.shape[0]
     labels = np.arange(num_points)
     for iii in range(num_points):
@@ -20,7 +24,11 @@ def do_knn_clustering(knn_array):
 
 
 def knn(position_matrix):
-    """slight concern if two points are the same because sklearn"""
+    """
+    Returns cluster labels of position matrix using the K-Nearest-Neighbours algorithm.
+
+    Slight concern if two points are the same because sklearn.
+    """
     npoints = position_matrix.shape[0]
     k = min(npoints, 10)
     nn = NearestNeighbors(n_neighbors=k).fit(position_matrix)

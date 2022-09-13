@@ -8,7 +8,7 @@ def xmeans(
     position_matrix,
 ):
     """
-    X-means clustering algorithm.
+    Returns cluster labels of position matrix using the X-means clustering algorithm.
 
     Initially looks for a maximum of 8 clusters. If it finds
     more than this, then it looks for twice as many, and so
