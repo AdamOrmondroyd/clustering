@@ -2,6 +2,7 @@
 Recursive KNN algorith copied from `PolyChord`
 """
 
+import numpy as np
 from sklearn.neighbors import NearestNeighbors
 from clustering.relabel import relabel
 
@@ -11,7 +12,7 @@ def do_knn_clustering(knn_array):
     for iii in range(num_points):
         for ii in range(iii + 1, num_points):
             if labels[ii] != labels[iii]:
-                if mutual_nearest_neighbors(knn_array, ii, iii):
+                if (ii in knn_array[iii]) or (iii in knn_array[ii]):
                     for i in range(num_points):
                         if labels[i] == labels[ii] or labels[i] == labels[iii]:
                             labels[i] = min([labels[ii], labels[iii]])
@@ -52,7 +53,7 @@ def knn(position_matrix):
         i_cluster = 0
         while i_cluster < num_clusters:
             cluster = position_matrix[labels == i_cluster]
-            labels[labels == i_cluster] = knn_clustering(cluster) + num_clusters
+            labels[labels == i_cluster] = do_knn_clustering(cluster) + num_clusters
             labels = relabel(labels)
             if num_clusters - 1 == max(labels):
                 i_cluster += 1
