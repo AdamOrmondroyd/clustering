@@ -1,15 +1,16 @@
 import numpy as np
-from pyclustering.cluster.xmeans import xmeans
+from pyclustering.cluster.xmeans import xmeans as pyclustering_xmeans
 from pyclustering.cluster.center_initializer import kmeans_plusplus_initializer
+from clustering.relabel import relabel
 
 
-def custom_cluster(
+def xmeans(
     position_matrix,
 ):
     """
     X-means clustering algorithm.
 
-    Initially looks for a maximum of 20 clusters. If it finds
+    Initially looks for a maximum of 8 clusters. If it finds
     more than this, then it looks for twice as many, and so
     on.
     """
@@ -22,7 +23,7 @@ def custom_cluster(
     max_clusters = 8
     clusters_found = 1
     while True:
-        xmeans_instance = xmeans(position_matrix, initial_centers, max_clusters, ccore=False)
+        xmeans_instance = pyclustering_xmeans(position_matrix, initial_centers, max_clusters, ccore=False)
         xmeans_instance.process()
         clusters = xmeans_instance.get_clusters()
         cluster_list = np.zeros(len(position_matrix))
@@ -32,5 +33,5 @@ def custom_cluster(
        
         if num_clusters <=  max_clusters:
             print("finished clustering", flush=True)
-            return cluster_list
+            return relabel(cluster_list.astype(int))
         max_clusters *= 2
