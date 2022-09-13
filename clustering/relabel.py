@@ -1,4 +1,4 @@
-i def relabel(labels):
+def relabel(labels):
     """
     Relabel cluster labels so that they are in ascending order.
     """
