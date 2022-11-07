@@ -6,6 +6,7 @@ import numpy as np
 from sklearn.neighbors import NearestNeighbors
 from clustering.relabel import relabel
 
+
 def do_knn_clustering(knn_array):
     """
     Uses knn to determine clusters.

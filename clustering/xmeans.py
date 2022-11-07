@@ -23,15 +23,17 @@ def xmeans(
     max_clusters = 8
     clusters_found = 1
     while True:
-        xmeans_instance = pyclustering_xmeans(position_matrix, initial_centers, max_clusters, ccore=False)
+        xmeans_instance = pyclustering_xmeans(
+            position_matrix, initial_centers, max_clusters, ccore=False
+        )
         xmeans_instance.process()
         clusters = xmeans_instance.get_clusters()
         cluster_list = np.zeros(len(position_matrix))
         for i, cluster in enumerate(clusters):
             cluster_list[cluster] = i
         num_clusters = max(cluster_list) + 1
-       
-        if num_clusters <=  max_clusters:
+
+        if num_clusters <= max_clusters:
             print("finished clustering", flush=True)
             return relabel(cluster_list.astype(int))
         max_clusters *= 2
