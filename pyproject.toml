@@ -1,0 +1,17 @@
+[project]
+name = "clustering"
+version = "0.1.0"
+description = "Clustering algorithms for use with PolyChordLite"
+authors = [{name="Adam Neil Ormondroyd", email="Adam.Ormondroyd@gmail.com"}]
+readme = "README.md"
+dependencies = ["numpy", "pyclustering", "scikit-learn"]
+
+[project.urls]
+repository = "https://github.com/Ormorod/clustering"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project.optional-dependencies]
+dev = ["black"]
