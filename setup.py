@@ -21,6 +21,6 @@ setuptools.setup(
     install_requires=[
         "numpy",
         "pyclustering",
-        "sklearn",
+        "scikit-learn",
     ],
 )
