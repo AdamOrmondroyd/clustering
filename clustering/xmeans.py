@@ -15,7 +15,7 @@ def xmeans(
     on.
     """
 
-    print("xmeans clustering", flush=True)
+    print("X-means clustering", flush=True)
 
     amount_initial_centers = 1
     initial_centers = kmeans_plusplus_initializer(
