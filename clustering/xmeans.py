@@ -14,7 +14,9 @@ def xmeans(
     more than this, then it looks for twice as many, and so
     on.
     """
+
     print("xmeans clustering", flush=True)
+
     amount_initial_centers = 1
     initial_centers = kmeans_plusplus_initializer(
         position_matrix, amount_initial_centers

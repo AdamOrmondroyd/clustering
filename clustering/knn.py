@@ -30,6 +30,9 @@ def knn(position_matrix):
 
     Slight concern if two points are the same because sklearn.
     """
+
+    print("knn clustering", flush=True)
+
     npoints = position_matrix.shape[0]
     k = min(npoints, 10)
     nn = NearestNeighbors(n_neighbors=k).fit(position_matrix)
