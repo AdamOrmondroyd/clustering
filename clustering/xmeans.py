@@ -14,7 +14,9 @@ def xmeans(
     more than this, then it looks for twice as many, and so
     on.
     """
-    print("started clustering", flush=True)
+
+    print("X-means clustering", flush=True)
+
     amount_initial_centers = 1
     initial_centers = kmeans_plusplus_initializer(
         position_matrix, amount_initial_centers
@@ -34,6 +36,5 @@ def xmeans(
         num_clusters = max(cluster_list) + 1
 
         if num_clusters <= max_clusters:
-            print("finished clustering", flush=True)
             return relabel(cluster_list.astype(int))
         max_clusters *= 2
