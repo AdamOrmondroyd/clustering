@@ -23,7 +23,6 @@ def xmeans(
     ).initialize()
 
     max_clusters = 8
-    clusters_found = 1
     while True:
         xmeans_instance = pyclustering_xmeans(
             position_matrix, initial_centers, max_clusters, ccore=False
