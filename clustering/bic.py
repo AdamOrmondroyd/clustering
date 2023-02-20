@@ -12,20 +12,20 @@ def bic(position_matrix, labels, cluster_centres):
     Li = np.full(K, np.inf)
     cluster_sizes = np.array([sum(labels == label)
                               for label in np.unique(labels)])
-    sqrt_sigma = 0
+    sigma2 = 0
 
     for i, pos in enumerate(position_matrix):
-        sqrt_sigma += np.sum(np.square(
+        sigma2 += np.sum(np.square(
             np.array(pos) - np.array(cluster_centres[labels[i]])
             ))
 
-    sqrt_sigma /= (R - K)
+    sigma2 /= (R - K)
     p = (K - 1) + M * K + 1
 
-    if sqrt_sigma <= 0:
+    if sigma2 <= 0:
         sigma_multiplier = -np.inf
     else:
-        sigma_multiplier = M * 0.5 * np.log(sqrt_sigma)
+        sigma_multiplier = M * 0.5 * np.log(sigma2)
 
     for i, Rn in enumerate(cluster_sizes):
 
