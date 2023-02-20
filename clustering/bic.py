@@ -12,24 +12,21 @@ def bic(position_matrix, labels, cluster_centres):
     Li = np.full(K, np.inf)
     cluster_sizes = np.array([sum(labels == label)
                               for label in np.unique(labels)])
-    sigma2 = 0
+    sigma2 = np.zeros(K)
 
     for i, pos in enumerate(position_matrix):
-        sigma2 += np.sum(np.square(
+        sigma2[labels[i]] += np.sum(np.square(
             np.array(pos) - np.array(cluster_centres[labels[i]])
             ))
 
     sigma2 /= (R - K)
-    p = (K - 1) + M * K + 1
+    sigma2[sigma2 <= 0] = 0
 
-    if sigma2 <= 0:
-        sigma_multiplier = -np.inf
-    else:
-        sigma_multiplier = M * 0.5 * np.log(sigma2)
+    p = (K - 1) + M * K + 1
 
     for i, Rn in enumerate(cluster_sizes):
 
         Li[i] = (Rn * (np.log(Rn / R) - np.log(2 * np.pi) / 2
-                       - sigma_multiplier) - (Rn - K) / 2)
+                       - M / 2 * np.log(sigma2[i])) - (Rn - K) / 2)
 
-    return sum(Li) - p * np.log(R) / 2
+    return sum(Li - p * np.log(R) / 2)
