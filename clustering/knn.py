@@ -57,7 +57,7 @@ def knn(position_matrix):
     num_clusters_old = num_clusters
 
     for n in np.arange(2, k + 1):
-        labels = do_knn_clustering(knn_array[:, :n+1])
+        labels = do_knn_clustering(knn_array[:, : n + 1])
         num_clusters = max(labels) + 1
 
         if num_clusters <= 0:
