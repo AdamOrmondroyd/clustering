@@ -55,7 +55,6 @@ def sklearn_xmeans(position_matrix):
 
 
 def kmeans(position_matrix, k):
-    km = skc.KMeans(n_clusters=k, algorithm='lloyd',
-                    init='k-means++', n_init=1)
+    km = skc.KMeans(n_clusters=k, algorithm="lloyd", init="k-means++", n_init=1)
     km.fit(position_matrix)
     return km.labels_, bic(position_matrix, km.labels_, km.cluster_centers_)
