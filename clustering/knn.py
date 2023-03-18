@@ -4,7 +4,6 @@ Recursive KNN algorith copied from `PolyChord`
 
 import numpy as np
 from scipy.spatial import distance_matrix
-from sklearn.neighbors import NearestNeighbors
 from clustering.relabel import relabel
 
 
@@ -47,14 +46,11 @@ def knn(position_matrix):
 
     npoints = position_matrix.shape[0]
     k = min(npoints, 10)
-    # nn = NearestNeighbors(n_neighbors=k).fit(position_matrix)
-    # knn_array = nn.kneighbors(position_matrix, return_distance=False)
     knn_array = compute_knn(position_matrix, k)
     labels = np.arange(npoints)
     num_clusters = npoints
 
     labels_old = labels
-    num_clusters_old = num_clusters
 
     for n in np.arange(2, k + 1):
         labels = do_knn_clustering(knn_array[:, : n + 1])
@@ -69,8 +65,6 @@ def knn(position_matrix):
         elif n == k:
             # If we need to cluster further, then expand the knn list
             k = min(k * 2, npoints)
-            # nn = NearestNeighbors(n_neighbors=k).fit(position_matrix)
-            # knn_array = nn.kneighbors(position_matrix, return_distance=False)
             knn_array = compute_knn(position_matrix, k)
 
         labels_old = labels
