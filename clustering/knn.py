@@ -24,9 +24,8 @@ def do_knn_clustering(knn_array):
     return relabel(labels)
 
 
-def compute_knn(position_matrix, k):
-    npoints = position_matrix.shape[0]
-    distance2_matrix = distance_matrix(position_matrix, position_matrix) ** 2
+def compute_knn(distance2_matrix, k):
+    npoints = distance2_matrix.shape[0]
     knn_array = np.empty((npoints, k))
     for i in range(npoints):
         knn_array[i] = np.argsort(distance2_matrix[:, i])[:k]  # [1:k+1]
@@ -38,15 +37,22 @@ def knn(position_matrix):
     """
     Returns cluster labels of position matrix using the
     K-Nearest-Neighbours algorithm.
+    """
+    distance2_matrix = distance_matrix(position_matrix, position_matrix) ** 2
+    return distance2_knn(distance2_matrix)
 
-    Slight concern if two points are the same because sklearn.
+
+def distance2_knn(distance2_matrix):
+    """
+    Returns cluster labels of distance2_matrix matrix using the
+    K-Nearest-Neighbours algorithm.
     """
 
     print("KNN clustering", flush=True)
 
-    npoints = position_matrix.shape[0]
+    npoints = distance2_matrix.shape[0]
     k = min(npoints, 10)
-    knn_array = compute_knn(position_matrix, k)
+    knn_array = compute_knn(distance2_matrix, k)
     labels = np.arange(npoints)
     num_clusters = npoints
 
@@ -65,7 +71,7 @@ def knn(position_matrix):
         elif n == k:
             # If we need to cluster further, then expand the knn list
             k = min(k * 2, npoints)
-            knn_array = compute_knn(position_matrix, k)
+            knn_array = compute_knn(distance2_matrix, k)
 
         labels_old = labels
 
