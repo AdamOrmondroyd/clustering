@@ -1,5 +1,5 @@
 import numpy as np
-from knn import distance2_knn
+from clustering.knn import distance2_knn
 import flexknot
 from tqdm import tqdm
 
