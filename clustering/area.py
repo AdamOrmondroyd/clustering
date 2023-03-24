@@ -4,7 +4,7 @@ import flexknot
 from tqdm import tqdm
 
 
-class AreaDistance:
+class AreaMetric:
     def __init__(self, x_min, x_max, y_min, y_max,
                  adaptive=False, N_min=None, N_max=None):
         self.x_min = x_min
