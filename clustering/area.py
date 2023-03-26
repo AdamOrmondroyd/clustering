@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.spatial import distance_matrix
 from clustering.knn import distance2_knn
 import flexknot
 from tqdm import tqdm
@@ -31,6 +32,14 @@ class AreaMetric:
                 areas[ii, i] /= ((self.x_max - self.x_min) * (self.y_max
                                                               - self.y_min))
         return areas
+
+
+class EulerMetric:
+    def __init__(self):
+        pass
+
+    def __call__(self, position_matrix):
+        return distance_matrix(position_matrix) ** 2
 
 
 class Metric:
