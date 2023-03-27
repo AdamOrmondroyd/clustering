@@ -39,7 +39,7 @@ class EulerMetric:
         pass
 
     def __call__(self, position_matrix):
-        return distance_matrix(position_matrix) ** 2
+        return distance_matrix(position_matrix, position_matrix) ** 2
 
 
 class Metric:
