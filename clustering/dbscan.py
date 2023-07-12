@@ -3,7 +3,7 @@ from sklearn.cluster import DBSCAN, OPTICS
 
 def dbscan(position_matrix):
     print("a")
-    db = DBSCAN(eps=0.5).fit(position_matrix)
+    db = DBSCAN(eps=0.1).fit(position_matrix)
     print(f"found {max(db.labels_)+1} clusters")
     print("b")
     print(db.labels_)
