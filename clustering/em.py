@@ -1,5 +1,6 @@
 import numpy as np
 from sklearn.mixture import GaussianMixture
+from clustering.relabel import relabel
 
 
 def expectation_maximisation(position_matrix):
@@ -15,5 +16,5 @@ def expectation_maximisation(position_matrix):
             best_score = score
             best_gmm = gmm
 
-    print(best_gmm.predict(position_matrix))
-    return best_gmm.predict(position_matrix)
+    print(relabel(best_gmm.predict(position_matrix)))
+    return relabel(best_gmm.predict(position_matrix))
