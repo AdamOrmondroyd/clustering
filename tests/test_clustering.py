@@ -19,7 +19,7 @@ samples_list = [moons_samples, circles_samples]
 
 @pytest.mark.parametrize("algorithm", algorithm_list)
 @pytest.mark.parametrize("samples", samples_list)
-def test_xmeans(algorithm, samples):
+def test_all_labels_correct(algorithm, samples):
     position_matrix = samples[0]
     cluster_list = algorithm(position_matrix)
     assert np.all(cluster_list == relabel(samples[1]))
