@@ -1,12 +1,12 @@
 import pytest
 import numpy as np
 from sklearn import datasets
-from clustering import xmeans, knn
+from clustering import xmeans, knn, gmeans
 from clustering.relabel import relabel
 from pyclustering.utils import read_sample
 from pyclustering.samples.definitions import SIMPLE_SAMPLES
 
-algorithm_list = [xmeans, knn]
+algorithm_list = [xmeans, knn, gmeans]
 
 # undecided whether to include pyclustering samples
 pyclustering_samples = np.array(read_sample(SIMPLE_SAMPLES.SAMPLE_SIMPLE3))
