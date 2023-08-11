@@ -9,30 +9,26 @@ from clustering.relabel import relabel
 
 def do_knn_clustering(knn_array):
     """
-    Uses knn to determine clusters.
+    Uses knn to determine clusters. (redo)
     """
-
     num_points = knn_array.shape[0]
     labels = np.arange(num_points)
-    for iii in range(num_points):
-        for ii in range(iii + 1, num_points):
-            if labels[ii] != labels[iii]:
-                if (ii in knn_array[iii]) or (iii in knn_array[ii]):
-                    for i in range(num_points):
-                        if labels[i] == labels[ii] or labels[i] == labels[iii]:
-                            labels[i] = min([labels[ii], labels[iii]])
+    for neighbours in knn_array:
+        old_labels = labels[neighbours]
+        new_label = np.min(old_labels)
+        labels[np.isin(labels, old_labels)] = new_label
     return relabel(labels)
 
 
 def compute_knn(position_matrix, k):
-    npoints = position_matrix.shape[0]
-    distance2_matrix = distance_matrix(position_matrix, position_matrix) ** 2
-    knn_array = np.empty((npoints, k))
-    for i in range(npoints):
-        knn_array[i] = np.argsort(distance2_matrix[:, i])[:k]  # [1:k+1]
+    x_squared = np.sum(position_matrix ** 2, axis=1).reshape(-1, 1)
+    distance2_matrix = x_squared + x_squared.T - 2 * position_matrix.dot(
+        position_matrix.T)
+
+    # Get the indices of the sorted k-nearest neighbors
+    knn_array = np.argsort(distance2_matrix, axis=1)[:, :k]
 
     return knn_array
-
 
 def knn(position_matrix):
     """
