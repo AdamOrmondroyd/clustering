@@ -10,7 +10,7 @@ from relabel import relabel
 # note: scipy seems to number clusters from 1
 
 
-def dynesty_cluster(points, depth=0):
+def dynesty(points, depth=0):
     """Compute covariance from re-centered clusters."""
 
     print(f"Dynesty clustering {depth=}", flush=True)
