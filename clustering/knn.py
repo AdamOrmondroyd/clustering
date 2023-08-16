@@ -3,7 +3,6 @@ Recursive KNN algorith copied from `PolyChord`
 """
 
 import numpy as np
-from scipy.spatial import distance_matrix
 from clustering.relabel import relabel
 
 
@@ -29,6 +28,7 @@ def compute_knn(position_matrix, k):
     knn_array = np.argsort(distance2_matrix, axis=1)[:, :k]
 
     return knn_array
+
 
 def knn(position_matrix):
     """
