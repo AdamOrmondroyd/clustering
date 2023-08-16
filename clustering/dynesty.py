@@ -5,7 +5,7 @@ Note that scipy seems to number clusters from 1.
 """
 import numpy as np
 from scipy import spatial, cluster
-from relabel import relabel
+from clustering.relabel import relabel
 
 # note: scipy seems to number clusters from 1
 
