@@ -41,7 +41,7 @@ def dynesty(points, depth=0):
                                         criterion='distance')
     labels = relabel(np.array(labels) - 1)
     print(f"{labels=}", flush=True)
-    if max(labels) == len(points):
+    if max(labels) == len(points) - 1:
         print("all points were assigned unique clusters", flush=True)
         return np.zeros_like(labels)
     if max(labels) > 0:
