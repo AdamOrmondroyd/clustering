@@ -16,6 +16,9 @@ def dynesty(points, depth=0):
     print(f"Dynesty clustering {depth=}", flush=True)
     # compute covariance matrix. Have noticed occasional singularity issues,
     # hence the exception block
+    print(f"{points=}", flush=True)
+    if len(points) <= 1:
+        return np.zeros(len(points))
     try:
         inv = np.linalg.inv(np.cov(points.T)).T
     except np.linalg.LinAlgError as e:
@@ -37,6 +40,10 @@ def dynesty(points, depth=0):
                                         1.0,
                                         criterion='distance')
     labels = relabel(np.array(labels) - 1)
+    print(f"{labels=}", flush=True)
+    if max(labels) == len(points):
+        print("all points were assigned unique clusters", flush=True)
+        return np.zeros_like(labels)
     if max(labels) > 0:
         labels = combine_labels(labels, *[dynesty(
             points[labels == label], depth=depth+1)
