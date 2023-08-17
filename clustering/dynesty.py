@@ -38,7 +38,7 @@ def dynesty(points, depth=0):
                                         criterion='distance')
     labels = relabel(np.array(labels) - 1)
     if max(labels) > 0:
-        labels = combine_labels(labels, *[dynesty_cluster(
+        labels = combine_labels(labels, *[dynesty(
             points[labels == label], depth=depth+1)
             for label in np.unique(labels)])
     return labels
