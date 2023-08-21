@@ -21,6 +21,8 @@ def dynesty(points, depth=0):
         return np.zeros(len(points))
     try:
         inv = np.linalg.inv(np.cov(points.T)).T
+        f = np.exp(1 / len(points[0]))
+        inv /= f**2
     except np.linalg.LinAlgError as e:
         print(e.message, flush=True)
         print("assuming single cluster and moving on", flush=True)
