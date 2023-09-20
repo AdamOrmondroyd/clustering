@@ -14,7 +14,7 @@ def dbscan(position_matrix):
 
 def hdbscan(position_matrix):
     print("HDBSCAN clustering", flush=True)
-    hdb = HDBSCAN(eps=0.1)
+    hdb = HDBSCAN()
     labels = relabel(hdb.fit_predict(position_matrix))
     if np.any(labels == -1):
         print("found noise", flush=True)
