@@ -7,7 +7,7 @@ readme = "README.md"
 dependencies = ["numpy<1.24", "pyclustering", "scikit-learn"]
 
 [project.urls]
-repository = "https://github.com/Ormorod/clustering"
+repository = "https://github.com/adamormondroyd/clustering"
 
 [build-system]
 requires = ["setuptools"]
