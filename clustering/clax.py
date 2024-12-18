@@ -83,6 +83,8 @@ def bic(x, labels, centres):
         return jnp.inf
 
     rn = jnp.bincount(labels, length=k)
+    if jnp.any(rn == 0):
+        return jnp.inf
 
     # compute single sigma2
     # sigma2 = jnp.sum(distance_2(x, centres)) / (r - k)
