@@ -1,7 +1,10 @@
+from functools import partial
+import numpy as np
 import jax
 from jax import numpy as jnp
 from matplotlib import pyplot as plt
 from timeit import timeit
+from clustering.relabel import relabel
 
 
 @jax.jit
@@ -65,7 +68,7 @@ def update_centres(x, assignments):
     return centroids
 
 
-def kmeans(key, x, k, max_iter=100):
+def kmeans(key, x, k, kmeans_plusplus_initialiser, assign, update_centres, max_iter=100):
     centres = kmeans_plusplus_initialiser(key, x, k)
     for i in range(max_iter):
         assignments = assign(x, centres)
@@ -83,8 +86,8 @@ def bic(x, labels, centres):
         return jnp.inf
 
     rn = jnp.bincount(labels, length=k)
-    if jnp.any(rn == 0):
-        return jnp.inf
+    # if jnp.any(rn == 0):
+        # return jnp.inf
 
     # compute single sigma2
     # sigma2 = jnp.sum(distance_2(x, centres)) / (r - k)
@@ -104,9 +107,60 @@ def bic(x, labels, centres):
     # return -2 * jnp.sum(logl) + p * jnp.log(r)
 
 
+def xmeans(key, x, kmeans, ic, max_k=8):
+    i = 1
+    key, subkey = jax.random.split(key)
+    centres_i, assignments_i = kmeans(subkey, x, i)
+    ic_i = ic(x, assignments_i, centres_i)
+
+    for ii in range(2, max_k):
+
+        key, subkey = jax.random.split(key)
+        centres_ii, assignments_ii = kmeans(subkey, x, ii)
+        ic_j = ic(x, assignments_ii, centres_ii)
+
+        if ic_i >= ic_j:
+            ic_i = ic_j
+            centres_i = centres_ii
+            assignments_i = assignments_ii
+
+    # if ii == max_k:
+        # return xmeans(key, x, kmeans, ic, max_k * 2)
+    # TODO: recursive call on subclusters
+
+    return centres_i, assignments_i
+
+
+_pc_kmeans = partial(
+    kmeans,
+    kmeans_plusplus_initialiser=kmeans_plusplus_initialiser,
+    assign=assign,
+    update_centres=update_centres,
+)
+
+_pc_key = jax.random.PRNGKey(0)
+_pc_xmeans = partial(
+    xmeans,
+    key=_pc_key,
+    kmeans=_pc_kmeans,
+    ic=bic,
+)
+
+
+def pc_xmeans(x):
+    print("JAX-means clustering", flush=True)
+    assignments = relabel(np.array(_pc_xmeans(x=jnp.array(x))[1]))
+    print(assignments, flush=True)
+    return assignments
 
 
 if __name__ == "__main__":
+    _pc_kmeans = partial(
+        kmeans,
+        kmeans_plusplus_initialiser=kmeans_plusplus_initialiser,
+        assign=assign,
+        update_centres=update_centres,
+    )
     key = jax.random.PRNGKey(1)
     x = jnp.array([[1, 2], [3, 4], [5, 6], [7, 8]])
     k = 3
@@ -116,13 +170,14 @@ if __name__ == "__main__":
         jax.random.normal(subkey0, (100, 2)),
         jax.random.normal(subkey1, (100, 2))*2 + 10
     ])
-    # print(timeit("kmeans(key, x, 2)", globals=globals(), number=100))
+
     bics = []
     gof = []
     pen = []
+
     for k in range(1, 11):
         key, subkey = jax.random.split(key)
-        centres, assignments = kmeans(subkey, x, k)
+        centres, assignments = _pc_kmeans(subkey, x, k)
 
         # bics.append(bic(x, assignments, centres))
         _ = bic(x, assignments, centres)
@@ -138,7 +193,7 @@ if __name__ == "__main__":
     print(bics)
     k = min(range(1, 11), key=lambda k: bics[k-1])
     key, subkey = jax.random.split(key)
-    centres, assignments = kmeans(subkey, x, k)
+    centres, assignments = _pc_kmeans(subkey, x, k)
 
     colors = [f"C{i}" for i in assignments]
 
@@ -149,4 +204,10 @@ if __name__ == "__main__":
     ax[1].plot(range(1, 11), gof, label="goodness of fit")
     ax[1].plot(range(1, 11), pen, label="penalty")
     ax[1].legend()
+    plt.show()
+
+    assignments = pc_xmeans(x)
+    fig, ax = plt.subplots()
+    colors = [f"C{i}" for i in assignments]
+    ax.scatter(x[:, 0], x[:, 1], color=colors)
     plt.show()
