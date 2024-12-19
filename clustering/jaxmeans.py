@@ -69,15 +69,15 @@ def update_centres(x, assignments):
     return centroids
 
 
-def kmeans(key, x, k, kmeans_plusplus_initialiser, assign, update_centres, max_iter=100):
+def kmeans(key, x, k, kmeans_plusplus_initialiser, assign, update_centres, persistence=10, max_iter=1000):
     centres = kmeans_plusplus_initialiser(key, x, k)
     previous = jnp.zeros_like(len(x))
     assignments = assign(x, centres)
     same = 0
     for i in range(max_iter):
         assignments = assign(x, centres)
-        # update the centres
         centres = update_centres(x, assignments)
+        # early stopping
         if jnp.all(assignments == previous):
             same += 1
         else:
@@ -96,9 +96,8 @@ def bic(x, labels, centres):
         return jnp.inf
 
     rn = jnp.bincount(labels, length=k)
-    # if jnp.any(rn == 0):
-        # return jnp.inf
 
+    # NOTE: two different BIC options
     # compute single sigma2
     # sigma2 = jnp.sum(distance_2(x, centres)) / (r - k)
     # k-1 class probabilities, m*k means, 1 variance
@@ -114,7 +113,6 @@ def bic(x, labels, centres):
     )
 
     return -2 * jnp.sum(logl), p * jnp.log(r)
-    # return -2 * jnp.sum(logl) + p * jnp.log(r)
 
 
 def xmeans(key, x, kmeans, ic, max_k=8):
@@ -134,9 +132,7 @@ def xmeans(key, x, kmeans, ic, max_k=8):
             centres_i = centres_ii
             assignments_i = assignments_ii
 
-    # if ii == max_k:
-        # return xmeans(key, x, kmeans, ic, max_k * 2)
-    # TODO: recursive call on subclusters
+    # TODO: recursive call on subclusters - actually polychord does this anyway?
 
     return centres_i, assignments_i
 
@@ -157,7 +153,7 @@ _pc_xmeans = partial(
 )
 
 
-def pc_xmeans(x):
+def jaxmeans(x):
     print("JAX-means clustering", flush=True)
     assignments = relabel(np.array(_pc_xmeans(x=jnp.array(x))[1]))
     print(assignments, flush=True)

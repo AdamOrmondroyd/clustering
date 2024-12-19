@@ -6,3 +6,4 @@ Keep using custom clustering algorithms everywhere so made sense to keep them to
 from clustering.xmeans import xmeans
 from clustering.knn import knn
 from clustering.dbscan import dbscan, hdbscan, optics
+from clustering.jaxmeans import jaxmeans
