@@ -18,15 +18,16 @@ def distance_2(x, centres):
     # subtract every x(num_x, ndims) from every centre(num_centres, ndims)
     distances = x[:, None] - centres[None, :]
 
-    distance_2s = jnp.sum(distances ** 2, axis=-1)
+    distance_2s = jnp.sum(distances ** 2, axis=2)
     # get the minimum distance2 for each x
-    return jnp.min(distance_2s, axis=-1)
+    return jnp.min(distance_2s, axis=1)
+
 
 @jax.jit
 def p_distance_2(x, centres):
     # return the normalised distance2
     distance_2s = distance_2(x, centres)
-    return distance_2s / jnp.sum(distance_2s)
+    return distance_2s / jnp.sum(distance_2s, axis=0)
 
 
 def kmeans_plusplus_initialiser(key, x, k):
@@ -53,8 +54,8 @@ def kmeans_plusplus_initialiser(key, x, k):
 def assign(x, centres):
     # assign each x to the nearest centre
     distances = x[:, None] - centres[None, :]
-    distance_2s = jnp.sum(distances ** 2, axis=-1)
-    assignments = jnp.argmin(distance_2s, axis=-1)
+    distance_2s = jnp.sum(distances ** 2, axis=2)
+    assignments = jnp.argmin(distance_2s, axis=1)
     return assignments
 
 
