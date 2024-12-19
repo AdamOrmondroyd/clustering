@@ -212,7 +212,7 @@ if __name__ == "__main__":
     ax[1].legend()
     plt.show()
 
-    assignments = pc_xmeans(x)
+    assignments = jaxmeans(x)
     fig, ax = plt.subplots()
     colors = [f"C{i}" for i in assignments]
     ax.scatter(x[:, 0], x[:, 1], color=colors)
