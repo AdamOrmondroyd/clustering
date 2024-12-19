@@ -71,11 +71,20 @@ def update_centres(x, assignments):
 
 def kmeans(key, x, k, kmeans_plusplus_initialiser, assign, update_centres, max_iter=100):
     centres = kmeans_plusplus_initialiser(key, x, k)
+    previous = jnp.zeros_like(len(x))
+    assignments = assign(x, centres)
+    same = 0
     for i in range(max_iter):
         assignments = assign(x, centres)
         # update the centres
         centres = update_centres(x, assignments)
-        # assert jnp.allclose(centroids, centres, atol=1e-3)
+        if jnp.all(assignments == previous):
+            same += 1
+        else:
+            same = 0
+            previous = assignments
+        if same >= persistence:
+            break
     return centres, assignments
 
 
