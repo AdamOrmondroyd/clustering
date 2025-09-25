@@ -25,7 +25,7 @@ def hdbscan(position_matrix):
 
 def optics(position_matrix):
     print("OPTICS clustering", flush=True)
-    op = OPTICS()
+    op = OPTICS(cluster_method='dbscan')
     labels = relabel(op.fit_predict(position_matrix))
     print(f"found {max(labels)+1} clusters", flush=True)
     print(labels, flush=True)
