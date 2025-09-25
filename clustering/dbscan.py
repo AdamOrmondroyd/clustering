@@ -5,7 +5,7 @@ from clustering.relabel import relabel
 
 def dbscan(position_matrix):
     print("DBSCAN clustering", flush=True)
-    db = DBSCAN(eps=0.1)
+    db = DBSCAN(eps=0.3)
     labels = relabel(db.fit_predict(position_matrix))
     print(f"found {max(labels)+1} clusters", flush=True)
     print(labels, flush=True)
