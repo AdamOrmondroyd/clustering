@@ -1,10 +1,12 @@
+import os
+os.environ["JAX_PLATFORM_NAME"] = "cpu"
 from functools import partial
 import numpy as np
 import jax
 from jax import numpy as jnp
 from matplotlib import pyplot as plt
-from timeit import timeit
 from clustering.relabel import relabel
+from time import time
 
 
 @jax.jit
@@ -32,7 +34,7 @@ def p_distance_2(x, centres):
 
 def kmeans_plusplus_initialiser(key, x, k):
 
-    centres = jnp.zeros((k, x.shape[1]))
+    centres = jnp.zeros((k, *x.shape[1:]))
 
     key, subkey = jax.random.split(key)
     centres = centres.at[0].set(x[jax.random.choice(subkey, x.shape[0])])
@@ -59,8 +61,7 @@ def assign(x, centres):
     return assignments
 
 
-def update_centres(x, assignments):
-    k = assignments.max() + 1
+def update_centres(x, assignments, k):
     cluster_counts = jnp.bincount(assignments, length=k)
     cluster_sums = jax.ops.segment_sum(x, assignments, k)
     centroids = cluster_sums / cluster_counts[:, None]
@@ -70,13 +71,22 @@ def update_centres(x, assignments):
 
 
 def kmeans(key, x, k, kmeans_plusplus_initialiser, assign, update_centres, persistence=10, max_iter=1000):
+    print(f"{k=}")
+    tick = time()
     centres = kmeans_plusplus_initialiser(key, x, k)
+    tock = time()
+    print(f"Initialisation took {tock - tick:.2f} seconds", flush=True)
+    tick = time()
+    centres = kmeans_plusplus_initialiser(key, x, k)
+    tock = time()
+    print(f"Initialisation took {tock - tick:.2f} seconds", flush=True)
+    tick = time()
     previous = jnp.zeros_like(len(x))
-    assignments = assign(x, centres)
     same = 0
+    update_centres_k = jax.jit(partial(update_centres, k=k))
     for i in range(max_iter):
         assignments = assign(x, centres)
-        centres = update_centres(x, assignments)
+        centres = update_centres_k(x, assignments)
         # early stopping
         if jnp.all(assignments == previous):
             same += 1
@@ -84,7 +94,12 @@ def kmeans(key, x, k, kmeans_plusplus_initialiser, assign, update_centres, persi
             same = 0
             previous = assignments
         if same >= persistence:
+            print(f"Converged after {i} iterations", flush=True)
             break
+    if same < persistence:
+        print(f"Did not converge after {max_iter} iterations", flush=True)
+    tock = time()
+    print(f"Clustering took {tock - tick:.2f} seconds", flush=True)
     return centres, assignments
 
 
@@ -112,13 +127,14 @@ def bic(x, labels, centres):
             - (rn - k) / 2
     )
 
-    return -2 * jnp.sum(logl), p * jnp.log(r)
+    return -2 * jnp.sum(logl) + p * jnp.log(r)
 
 
+# TODO: could use the same initialisation for all k
 def xmeans(key, x, kmeans, ic, max_k=8):
-    i = 1
     key, subkey = jax.random.split(key)
-    centres_i, assignments_i = kmeans(subkey, x, i)
+    # k = 1 is just a single cluster with the mean of all x
+    centres_i, assignments_i = jnp.mean(x, axis=0)[None], jnp.zeros(len(x), dtype=jnp.int32)
     ic_i = ic(x, assignments_i, centres_i)
 
     for ii in range(2, max_k):
@@ -132,7 +148,7 @@ def xmeans(key, x, kmeans, ic, max_k=8):
             centres_i = centres_ii
             assignments_i = assignments_ii
 
-    # TODO: recursive call on subclusters - actually polychord does this anyway?
+    # TODO: recursive call on subclusters - actually polychord does this
 
     return centres_i, assignments_i
 
@@ -173,44 +189,50 @@ if __name__ == "__main__":
     key, subkey0 = jax.random.split(key)
     key, subkey1 = jax.random.split(key)
     x = jnp.vstack([
-        jax.random.normal(subkey0, (100, 2)),
-        jax.random.normal(subkey1, (100, 2))*2 + 10
+        jax.random.normal(subkey0, (1000, 2)),
+        jax.random.normal(subkey1, (1000, 2))*2 + 10,
+        jax.random.normal(subkey1, (1000, 2))*jnp.array([1.5, 1]) + jnp.array([0, 10])
     ])
 
     bics = []
     gof = []
     pen = []
+    centress = []
+    assignmentss = []
 
-    for k in range(1, 11):
-        key, subkey = jax.random.split(key)
-        centres, assignments = _pc_kmeans(subkey, x, k)
-
-        # bics.append(bic(x, assignments, centres))
-        _ = bic(x, assignments, centres)
-        gof.append(_[0])
-        pen.append(_[1])
-        bics.append(gof[-1] + pen[-1])
-
-        # colors = [f"C{i}" for i in assignments]
-        # plt.scatter(x[:, 0], x[:, 1], color=colors)
-        # plt.scatter(centres[:, 0], centres[:, 1], color="k")
-        plt.show()
-
-    print(bics)
-    k = min(range(1, 11), key=lambda k: bics[k-1])
-    key, subkey = jax.random.split(key)
-    centres, assignments = _pc_kmeans(subkey, x, k)
-
-    colors = [f"C{i}" for i in assignments]
-
-    fig, ax = plt.subplots(2)
-    ax[0].scatter(x[:, 0], x[:, 1], color=colors)
-    ax[0].scatter(centres[:, 0], centres[:, 1], color="k")
-    ax[1].plot(range(1, 11), bics, label="BIC")
-    ax[1].plot(range(1, 11), gof, label="goodness of fit")
-    ax[1].plot(range(1, 11), pen, label="penalty")
-    ax[1].legend()
-    plt.show()
+    # for k in range(1, 11):
+    #     key, subkey = jax.random.split(key)
+    #     centres, assignments = _pc_kmeans(subkey, x, k)
+    #
+    #     centress.append(centres)
+    #     assignmentss.append(assignments)
+    #     # bics.append(bic(x, assignments, centres))
+    #     _ = bic(x, assignments, centres)
+    #     gof.append(_[0])
+    #     pen.append(_[1])
+    #     bics.append(gof[-1] + pen[-1])
+    #
+    #     # colors = [f"C{i}" for i in assignments]
+    #     # plt.scatter(x[:, 0], x[:, 1], color=colors)
+    #     # plt.scatter(centres[:, 0], centres[:, 1], color="k")
+    #     plt.show()
+    #
+    # print(bics)
+    # k = min(range(1, 11), key=lambda k: bics[k-1])
+    # key, subkey = jax.random.split(key)
+    # centres = centress[k-1]
+    # assignments = assignmentss[k-1]
+    #
+    # colors = [f"C{i}" for i in assignments]
+    #
+    # fig, ax = plt.subplots(2)
+    # ax[0].scatter(x[:, 0], x[:, 1], color=colors)
+    # ax[0].scatter(centres[:, 0], centres[:, 1], color="k")
+    # ax[1].plot(range(1, 11), bics, label="BIC")
+    # ax[1].plot(range(1, 11), gof, label="goodness of fit")
+    # ax[1].plot(range(1, 11), pen, label="penalty")
+    # ax[1].legend()
+    # plt.show()
 
     assignments = jaxmeans(x)
     fig, ax = plt.subplots()

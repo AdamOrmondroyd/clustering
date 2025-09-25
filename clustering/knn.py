@@ -1,5 +1,5 @@
 """
-Recursive KNN algorith copied from `PolyChord`
+Recursive KNN algorithm copied from `PolyChord`
 """
 
 import numpy as np
@@ -76,4 +76,16 @@ def knn(position_matrix):
                 i_cluster += 1
             labels = relabel(labels)
             num_clusters = max(labels) + 1
+    return labels
+
+
+def knn_recursive(position_matrix):
+    labels = knn(position_matrix)
+    if max(labels) == 0:
+        return labels
+    for label in np.unique(labels):
+        sub_labels = knn_recursive(position_matrix[labels == label])
+        sub_labels += max(labels) + 1
+        labels[labels == label] = sub_labels
+        labels = relabel(labels)
     return labels

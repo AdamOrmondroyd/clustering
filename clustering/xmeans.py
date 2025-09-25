@@ -6,6 +6,7 @@ from clustering.relabel import relabel
 
 def xmeans(
     position_matrix,
+    amount_initial_centres=1,
 ):
     """
     Returns cluster labels of position matrix using the X-means clustering algorithm.
@@ -17,14 +18,13 @@ def xmeans(
 
     print("X-means clustering", flush=True)
 
-    amount_initial_centers = 1
-    initial_centers = kmeans_plusplus_initializer(
-        position_matrix, amount_initial_centers
-    ).initialize()
-
     max_clusters = 8
-    clusters_found = 1
+
     while True:
+        initial_centers = kmeans_plusplus_initializer(
+            position_matrix, amount_initial_centres,
+        ).initialize()
+
         xmeans_instance = pyclustering_xmeans(
             position_matrix, initial_centers, max_clusters, ccore=False
         )
